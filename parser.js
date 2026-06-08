@@ -117,13 +117,40 @@ function parse_suggested() {
     return result;
 }
 
+function parse_reviews() {
+    const result = [];
+    document.querySelectorAll('.reviews article').forEach((item) => {
+        let review = {};
+        review.rating = Array.from(item.querySelectorAll('.rating span')).reduce((rating, currentStar) => {
+            if (currentStar.classList.contains('filled')) {
+                rating += 1;
+            }
+        return rating;
+        }, 0);
+        
+
+        review.autor = {
+            'name': item.querySelector('.author span').textContent.trim(),
+            'avatar': item.querySelector('.author img').src
+        }
+        review.date = item.querySelector('.author i').textContent.trim().replaceAll('/', '.');
+        const titleElement = item.querySelector('.title');
+        const descriptionElement = titleElement.nextElementSibling;
+        review.title = titleElement.textContent.trim();
+        review.description = descriptionElement.textContent.trim();
+        result.push(review);
+
+    })
+    return result;
+}
+
 
 function parsePage() {
     return {
         meta: parse_meta(),
         product: parse_product(),
         suggested: parse_suggested(),
-        reviews: []
+        reviews: parse_reviews()
     };
 }
 
