@@ -2,7 +2,7 @@
 function parse_meta() {
     let result = {};
     result.language = document.querySelector('html').lang;
-    result.head = document.querySelector('head title').textContent.split('—')[0].trim();
+    result.title = document.querySelector('head title').textContent.split('—')[0].trim();
     result.keywords = document.querySelector('meta[name="keywords"]')
         .content
         .split(',')
@@ -36,12 +36,12 @@ function getCurrency(textPrice) {
 
 function parse_product() {
     let result = {};
-    result.id = document.querySelector('body div').id;
+    result.id = document.querySelector('.product').dataset.id;
     const images = [... document.querySelectorAll('.product .preview nav img')]
     const disabled_images = images.filter((img) => img.closest('button').hasAttribute('disabled'));
     const rest_images = images.filter((img) => !img.closest('button').hasAttribute('disabled'));
     result.images = [...disabled_images, ...rest_images].map((img) => ({
-        preview: img.scroll,
+        preview: img.src,
         full: img.dataset.src,
         alt: img.alt,
     }));
@@ -80,7 +80,7 @@ function parse_product() {
         result.discountPercent = '0%';
     }
     
-    currency = getCurrency(priceText);
+    result.currency = getCurrency(priceText);
 
     result.properties = {};
     document.querySelectorAll('.product .properties li').forEach((li) => {
@@ -97,18 +97,19 @@ function parse_product() {
             el.removeAttribute(attr.name);
         });
     });
-    result.desription = descriptionClone.innerHTML.trim();
+    result.description = descriptionClone.innerHTML.trim();
     return result;
 }
 
 function parse_suggested() {
     let result = [];
     document.querySelectorAll('.suggested article').forEach((item) => {
+        
         const itemDescription = {
             'name': item.querySelector('h3').textContent.trim(),
             'description': item.querySelector('p').textContent.trim(),
             'image': item.querySelector('img').src,
-            'price': getPriceFromText(item.querySelector('b').textContent.trim()),
+            'price': getPriceFromText(item.querySelector('b').textContent.trim()).toString(),
             'currency': getCurrency(item.querySelector('b').textContent.trim())
         }
         result.push(itemDescription);
@@ -129,7 +130,7 @@ function parse_reviews() {
         }, 0);
         
 
-        review.autor = {
+        review.author = {
             'name': item.querySelector('.author span').textContent.trim(),
             'avatar': item.querySelector('.author img').src
         }
